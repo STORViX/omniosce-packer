@@ -6,7 +6,7 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure('2') do |config|
-    config.vm.define 'omniosce-r151038', primary: true do |vm1|
+    config.vm.define 'omniosce-r151030', primary: true do |vm1|
         # The most common configuration options are documented and commented below.
         # For a complete reference, please see the online documentation at
         # https://docs.vagrantup.com.
@@ -20,8 +20,9 @@ Vagrant.configure('2') do |config|
 
         # Every Vagrant development environment requires a box. You can search for
         # boxes at https://vagrantcloud.com/search.
-        config.vm.box = 'omniosce-r151038'
-        config.vm.box_url = 'builds/virtualbox/omniosce-r151038.box'
+        config.vm.box = 'omniosce-r151030'
+        config.vm.box_url = 'builds/virtualbox/omniosce-r151030.box'
+        #config.vm.box = 'storvix/omniosce-r151038'
         config.ssh.username = 'admin'
         config.ssh.password = 'admin'
 
@@ -34,7 +35,7 @@ Vagrant.configure('2') do |config|
         # within the machine from a port on the host machine. In the example below,
         # accessing "localhost:8080" will access port 80 on the guest machine.
         # NOTE: This will enable public access to the opened port
-        vm1.vm.network 'forwarded_port', guest: 6767, host: 6767
+        #vm1.vm.network 'forwarded_port', guest: 6767, host: 6767
 
         # Create a forwarded port mapping which allows access to a specific port
         # within the machine from a port on the host machine and only allow access
@@ -55,7 +56,7 @@ Vagrant.configure('2') do |config|
         # the path on the guest to mount the folder. And the optional third
         # argument is a set of non-required options.
         # config.vm.synced_folder ".", "/vagrant", disabled: true
-        vm1.vm.synced_folder '.', '/export/home/vagrant/data'
+        vm1.vm.synced_folder '.', '/home/admin/data', disabled: false
 
         # Provider-specific configuration so you can fine-tune various
         # backing providers for Vagrant. These expose provider-specific options.
@@ -63,7 +64,7 @@ Vagrant.configure('2') do |config|
         #
         vm1.vm.provider 'virtualbox' do |vb|
             vb.check_guest_additions = false
-            vb.name = 'omniosce-r151038'
+            vb.name = 'omniosce-r151030'
             # Display the VirtualBox GUI when booting the machine
             vb.gui = false
             # Customize the amount of memory on the VM:

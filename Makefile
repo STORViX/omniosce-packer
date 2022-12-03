@@ -8,7 +8,7 @@
 
 .PHONY: all run virtualbox clean
 
-BOX_NAME := omniosce-r151038
+BOX_NAME := omniosce-r151030
 
 all: virtualbox
 
