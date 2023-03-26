@@ -1,0 +1,47 @@
+# pfexec zoneadm -z lipkgzone verify
+# pfexec zoneadm -z lipkgzone install
+# pfexec zoneadm -z lipkgzone ready
+# pfexec zoneadm -z lipkgzone boot
+# pfexec zoneadm -z lipkgzone list -v
+# pfexec zoneadm -z lipkgzone halt
+# pfexec zoneadm -z lipkgzone reboot
+# pfexec zoneadm -z lipkgzone uninstall -F
+
+# To clean wrong installation
+# pfexec zonecfg -z lipkgzone delete -F
+# pfexec zfs destroy -r rpool/export/home/lipkgzone
+
+
+echo "STARTED"
+
+pfexec zfs create -o mountpoint=/zones rpool/zones
+#pfexec mkdir -p /export/home/lipkgzone/root/etc
+#pfexec mkdir -p /export/home/lipkgzone/etc/svc
+#pfexec mkdir -p /export/home/lipkgzone/var/svc
+#pfexec mkdir -p /export/home/lipkgzone/usr/bin/pkg
+
+echo "FINISH initializing block"
+
+pfexec zonecfg -z zone1 "
+create ;
+set brand=lipkg ;
+set zonepath=/zones/zone1 ;
+set fs-allowed=ufs ;
+set limitpriv=default,dtrace_user,dtrace_proc ;
+set autoboot=true ;
+set bootargs=\"-m verbose\" ;
+verify ;
+commit ;
+exit"
+
+echo "FINISH zonecfg block"
+
+#pfexec chown root -R /export/home/lipkgzone/
+#pfexec chmod 700 -R /export/home/lipkgzone/
+#pfexec chmod 755 -R /export/home/lipkgzone/root/
+
+echo "FINISH chmod block"
+
+pfexec zoneadm -z zone1 install
+
+echo "[II] lipkg zone provisioning completed!"

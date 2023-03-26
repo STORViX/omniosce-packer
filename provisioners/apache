@@ -1,0 +1,13 @@
+#!/usr/bin/env bash -eux
+pfexec pkg install apache-24
+
+echo "Apache-24 downloaded"
+
+pfexec mv /etc/opt/ooce/apache-2.4/httpd.conf /etc/opt/ooce/apache-2.4/httpd.conf.old
+pfexec mv /home/admin/provisioners/conf/httpd.conf /etc/opt/ooce/apache-2.4/httpd.conf
+
+echo "Setted apache configuration"
+
+pfexec svcadm enable svc:/network/http:apache24
+
+echo "Apache service actived"

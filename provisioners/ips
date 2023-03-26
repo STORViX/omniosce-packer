@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+
+# for reference:
+# https://docs.oracle.com/cd/E23824_01/html/E21796/pkg-depotd-1m.html
+
+set -eu
+
+# NOTE: These are not really all actually existing, due to legacy. A full list
+#       of releases and their ports is supposed to reside in:
+#       git@bitbucket.org:/storvixdevelopment/dojo/content/posts/IPS.md
+#       Please remember to update there if modifying here.
+ALL_RELEASES='stable stable-qa edge edge-qa experimental'
+
+if [ "${1}" = '--remove' ]; then
+    MODE='remove'
+    shift
+    RELEASES="${@}"
+else
+    MODE='create'
+    RELEASES="${@:-${ALL_RELEASES}}"
+fi
+
+root_for_release() {
+    local release="${1}"
+    local directory
+
+    case ${release} in
+        'stable' | 'edge')
+            directory='/export/pkg'
+            ;;
+        'stable-qa' | 'edge-qa')
+            directory='/export/pkg'
+	    ;;
+        *)
+            echo "Unknown release name: ${release}" >&2
+            return 1
+            ;;
+    esac
+
+    echo "${directory}"
+}
+
+port_for_release() {
+    local release="${1}"
+    local relnum
+
+    case ${release} in
+        'stable')
+            relnum=30
+            ;;
+        'stable-qa')
+            relnum=40
+            ;;
+        'edge')
+            relnum=38
+            ;;
+        'edge-qa')
+            relnum=50
+            ;;
+        'experimental')
+            relnum=40
+            ;;
+        *)
+            echo "Unknown release name: ${release}" >&2
+            return 1
+            ;;
+    esac
+
+    echo "100${relnum}"
+}
+
+get_proxy_base() {
+    local release="${1}"
+    local type="${1#*-}"
+    local name="${1%-*}"
+
+    [ "${type}" != "${name}" ] || type='r'
+
+    echo "https://update.storvix.eu/aire/${type}/${name}/"
+}
+
+remove_repo() {
+    local release="${1}"
+    local port=$( port_for_release "${release}" )
+    [ ${port} ]
+    local root=$( root_for_release "${release}" )
+    [ ${root} ]
+
+    echo 'Disabling service.'
+    pfexec svcadm disable "pkg/server:${release}"
+    while svcs | grep -E "online.*pkg/server:${release}"; do
+        sleep 2
+    done
+    echo 'Deleting service.'
+    pfexec svccfg -s "pkg/server" delete "${release}"
+    echo 'Removing directory'
+    pfexec rm -rf "${root}/${release}"
+    #echo 'Removing symlink.'
+    #pfexec rm "/mnt/engnfs/artifacts/ips-links/${release}"
+}
+
+create_repo() {
+    local release="${1}"
+    local port=$( port_for_release "${release}" )
+    [ ${port} ]
+    local root=$( root_for_release "${release}" )
+    [ ${root} ]
+    local proxy_base=$( get_proxy_base "${release}" )
+
+    pub='aire'
+    collection='core'
+
+    ## Repo
+    echo 'Create and configure repository'
+    pfexec pkgrepo create "${root}/${release}/"
+    pfexec pkgrepo set -s "${root}/${release}/" "publisher/prefix=${pub}"
+    pfexec pkgrepo set -s "${root}/${release}/" -p "${pub}" \
+        "repository/collection_type=${collection}"
+    pfexec pkgrepo set -s "${root}/${release}/" -p "${pub}" \
+        "repository/description=IPS Packages for AiRE ${release} ${port}"
+    pfexec pkgrepo set -s "${root}/${release}/" -p "${pub}" \
+        "repository/name=AiRE ${release} ${port}"
+    echo 'Changing ownership of repository'
+    pfexec chown -R pkg5srv "${root}/${release}/"
+
+    ## pkg/server
+    echo 'Create and configure service'
+    pfexec svccfg -s "pkg/server" add "${release}"
+    pfexec svccfg -s "pkg/server:${release}" addpg pkg application
+    pfexec svccfg -s "pkg/server:${release}" \
+        setprop 'pkg/inst_root' = "${root}/${release}/"
+    # (pkg/content_root : astring) The file system path at which the instance
+    # should find its static and other web content. The default value is
+    # /usr/share/lib/pkg.
+    # pfexec svccfg -s pkg/server:${release}" \
+    #     setprop 'pkg/content_root' = "/export/pkg/${release}/content_root"
+    pfexec svccfg -s "pkg/server:${release}" \
+        setprop 'pkg/content_root' = '/usr/share/lib/pkg'
+    pfexec svccfg -s "pkg/server:${release}" setprop 'pkg/threads '= 100
+    #pfexec svccfg -s "pkg/server:${release}" setprop 'pkg/readonly' = false
+    pfexec svccfg -s "pkg/server:${release}" setprop 'pkg/port' = "${port}"
+    pfexec svccfg -s "pkg/server:${release}" setprop \
+        'pkg/proxy_base' = "${proxy_base}"
+    pfexec svccfg -s "pkg/server:${release}" \
+        setprop 'pkg/writable_root' = "${root}/${release}/root"
+    # pfexec svccfg -s "pkg/server:${release}" \
+    #     setprop pkg/address = '127.0.0.1'
+
+    echo 'Refresh service'
+    pfexec svcadm refresh "pkg/server:${release}"
+    echo 'Enable service'
+    pfexec svcadm enable  "pkg/server:${release}"
+
+    #echo 'Create symlink'
+    #ln -sf "${root}/${release}" "/mnt/engnfs/artifacts/ips-links/${release}"
+}
+
+for RELEASE in ${RELEASES}; do
+    case "${MODE}" in
+        'create')
+            echo "Configuring ${RELEASE} IPS"
+
+            create_repo "${RELEASE}"
+	;;
+        'remove')
+            echo -n "Really remove ${RELEASE} IPS? (y/N): "
+            read INPUT
+
+            case "${INPUT}" in
+                'y' | 'Y')
+                    echo "Ok, removing ${RELEASE} IPS"
+                    remove_repo "${RELEASE}"
+                    ;;
+                *)
+                    echo "Skipping removal of ${RELEASE} IPS"
+                    ;;
+            esac
+	;;
+        *)
+            echo "Unknown mode: ${MODE}" >&2
+	    exit 1
+	;;
+    esac
+done

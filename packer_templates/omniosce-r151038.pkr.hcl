@@ -1,10 +1,10 @@
-	source "virtualbox-iso" "omniosce-r151030" {
+source "virtualbox-iso" "omniosce-r151038" {
     boot_command     = [
         "<enter><wait5>", // Select default keyboard layout
         "<enter><wait5>", // Enter find disk menu
         "<spacebar><enter><wait5>", // Select first disk as rpool
         "0<enter><wait5>",  // Accept rpool informations
-        "<bs><bs><bs><bs><bs><bs>omniosce-r151030", // Change system hostname
+        "<bs><bs><bs><bs><bs><bs>r151038", // Change system hostname
         "<enter><wait><enter><wait1>", // Select default UTC timezone
         "<enter><wait1>", // Proceed with ZFS installation
         "<wait55>", // Wait for installation
@@ -24,16 +24,16 @@
   disk_size        = 40960
   guest_os_type    = "OpenSolaris_64"
   headless         = "false"
-  iso_checksum     = "file:https://downloads.omnios.org/media/r151030/omnios-r151030ap.iso.sha256"
-  iso_url          = "https://downloads.omnios.org/media/r151030/omnios-r151030ap.iso"
+  iso_checksum     = "file:https://downloads.omnios.org/media/r151038/omnios-r151038an.iso.sha256"
+  iso_url          = "https://downloads.omnios.org/media/r151038/omnios-r151038an.iso"
   shutdown_command = "pfexec /usr/sbin/shutdown -g 0 -y -i 5"
   ssh_password     = "admin"
-  ssh_port         = 22
   ssh_username     = "admin"
+  ssh_port	   = 22
 
   vboxmanage = [
-    ["modifyvm", "{{.Name}}", "--memory", "1024"],
-    ["modifyvm", "{{.Name}}", "--cpus", "1"],
+    ["modifyvm", "{{.Name}}", "--memory", "2048"],
+    ["modifyvm", "{{.Name}}", "--cpus", "2"],
     ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--add", "sata"],
     ["createhd", "--filename", "{{.Name}}-data-pool.vdi", "--size", "40960"],
     ["storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--type", "hdd",
@@ -42,19 +42,17 @@
 }
 
 build {
-  sources = ["source.virtualbox-iso.omniosce-r151030"]
+  sources = ["source.virtualbox-iso.omniosce-r151038"]
 
   provisioner "shell" {
     scripts = [
-        "scripts/data-pool.sh",
-        "scripts/guest-additions.sh",
-        "scripts/pkg-update.sh",
-        "scripts/rsync.sh"
+        "provisioners/guest-additions",
+        "provisioners/pkg"
     ]
   }
 
   post-processor "vagrant" {
     compression_level = 9
-    output            = "./builds/virtualbox/omniosce-r151030.box"
+    output            = "./builds/virtualbox/omniosce-r151038.box"
   }
 }

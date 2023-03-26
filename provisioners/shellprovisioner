@@ -1,0 +1,66 @@
+#!/usr/bin/env bash -eux
+#
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+#
+# Copyright (c) 2018,2022 STORVIX AB.
+#
+#if [ $1 -eq 0 ]; then
+    #pfexec usermod -P 'Primary Administrator' admin
+    #pfexec usermod -K type=role root
+    #pfexec usermod -R root admin
+
+    pfexec echo "export PATH=$PATH:/opt/ooce/bin/" >> /home/admin/.profile
+    pfexec echo "export OPENSSL_DIR=/usr/ssl" >> /home/admin/.profile
+    pfexec echo "r151038" > /etc/nodename
+    pfexec echo "domain vbox.lan" > /etc/resolv.conf
+    pfexec echo "nameserver 208.67.220.220" >> /etc/resolv.conf
+    pfexec cp /etc/nsswitch.dns /etc/nsswitch.conf
+    #pfexec ipadm create-addr -T static -a 169.254.255.10/24 e1000g1/v4static
+
+    # [FIX] this command doesn't work automatically
+    #yes | pfexec pkgadd -G -d /home/vagrant/VBoxSolarisAdditions.pkg all
+
+    #pfexec zfs create -o mountpoint=/export data/export
+    #pfexec zfs create data/export/pkg
+    #pfexec chown pkg5srv /export/pkg
+    #pfexec zfs create data/export/build
+
+#else
+    #pfexec pkg update
+    #pfexec pkg install zsh rust git nginx gcc8 build-essential
+    #pfexec pkg install pkg:/system/zones/brand/lx
+    #pfexec pkg install bart
+    #su - vagrant -c 'exit | pfexec sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+    #pfexec touch /home/vagrant/.zsh_history
+    #pfexec chown vagrant /home/vagrant/.zsh_history
+
+    #echo "Installed required pkg"
+
+    #pfexec git clone https://github.com/zsh-users/zsh-syntax-highlighting.git /home/vagrant/.oh-my-zsh/plugins/zsh-syntax-highlighting ; \
+    #pfexec git clone https://github.com/zsh-users/zsh-autosuggestions /home/vagrant/.oh-my-zsh/plugins/zsh-autosuggestions ; \
+    #pfexec git clone https://github.com/bobthecow/git-flow-completion /home/vagrant/.oh-my-zsh/plugins/git-flow-completion ; \
+    #pfexec git clone https://github.com/supercrabtree/k /home/vagrant/.oh-my-zsh/plugins/k
+
+    #echo "Installed zsh plugin"
+
+    #pfexec usermod -s /usr/bin/zsh vagrant
+
+    #echo "ZSH set as vagrant default shell"
+
+    #pfexec sh /home/admin/provisioners/set-apache.sh
+
+    #echo "Apache setted"
+
+    #pfexec sh /home/admin/provisioners/create-ips.sh stable
+    #pfexec sh /home/admin/provisioners/create-ips.sh edge
+
+    #echo "IPS created"
+
+    #pfexec sh /home/admin/tools/list-ips-ports.sh
+
+    echo "[II] shell provisioning script completed!"
+#fi

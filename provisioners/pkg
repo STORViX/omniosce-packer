@@ -1,0 +1,5 @@
+#!/usr/bin/env bash -eux
+pfexec pkg install pkg:/package/pkg
+pfexec pkg update
+pfexec pkg install zsh rsync git build-essential gcc9 rust developer/illumos-tools developer/omnios-build-tools ooce/omnios-build-tools media/cdrtools
+echo "[II] pkg provisioning completed!"

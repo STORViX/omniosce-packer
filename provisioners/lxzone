@@ -1,0 +1,79 @@
+# pfexec zoneadm -z lxzone verify
+# pfexec zoneadm -z lxzone install
+# pfexec zoneadm -z lxzone ready
+# pfexec zoneadm -z lxzone boot
+# pfexec zoneadm list -vi
+# pfexec zoneadm -z lxzone halt
+# pfexec zoneadm -z lxzone reboot
+# pfexec zoneadm -z lxzone uninstall -F
+
+# To clean wrong installation
+# pfexec zfs destroy -r rpool/zones/lxzone ; pfexec zonecfg -z lxzone delete -F
+
+echo "STARTED"
+
+# Make sure to have this package installed
+pfexec pkg install pkg:/system/zones/brand/lx
+
+pfexec zfs create -o mountpoint=/lxzones rpool/lxzones
+pfexec zfs create rpool/lxzones/lxzone1
+#pfexec mkdir /zones/lxzoneiso
+pfexec dladm create-vnic -l e1000g1 lx1
+
+echo "FINISH initializing block"
+
+pfexec zonecfg -z lxzone1 "
+create ;
+set zonepath=/lxzones/lxzone1 ;
+set brand=lx ;
+set autoboot=false ;
+set ip-type=exclusive ;
+add net ;
+set physical=lx1 ;
+#add property (name=gateway,value=\"192.168.0.1\") ;
+#add property (name=ips,value=\"192.168.0.69/24\") ;
+#add property (name=primary,value=\"true\") ;
+add property (name=ips,value=dhcp) ;
+add property (name=primary,value=true) ;
+end ;
+add attr ;
+set name=dns-domain ;
+set type=string ;
+set value=vbox.lan ;
+end ;
+add attr ;
+#set name=resolvers ;
+#set type=string ;
+#set value=192.168.0.1 ;
+end ;
+add attr ;
+set name=kernel-version ;
+set type=string ;
+set value=4.3.0 ;
+end ;
+set max-lwps=2000 ;
+exit ;"
+
+echo "FINISH zonecfg block"
+
+#pfexec chown -R root /zones/lxzone
+#pfexec chmod -R 700 /zones/lxzone
+
+echo "FINISH chmod block"
+
+if [ ! -f "/home/admin/ubuntu2004.zss.gz" ]
+then
+  pfexec curl -o /home/admin/ubuntu2004.zss.gz https://images.joyent.com/images/0bf06d4d-b62f-4b3b-b560-3cd258df2070/file
+else
+  echo "Image already downloaded"
+fi
+
+echo "FINISH zonecfg block"
+
+pfexec zoneadm -z lxzone1 install -s /home/admin/ubuntu2004.zss.gz
+
+echo "FINISH install command"
+
+#pfexec zoneadm -z lxzone1 boot
+
+echo "[II] lxzone provisioning completed!"

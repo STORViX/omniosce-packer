@@ -1,0 +1,17 @@
+#!/usr/bin/env bash -eux
+# Use the first disk not assigned to a zpool already to create the data pool.
+for DISK in $(cfgadm -al | awk -F\/ '/dsk/{ print $3 }' | awk '{ print $1 }'); do
+  if [[ -z $(zpool list -v | ggrep -E '^\s+${DISK}') ]]; then
+    echo "[II] Adding data zpool using whole disk ${DISK}"
+    pfexec zpool create -f tank ${DISK}
+    break
+  fi
+done
+
+pfexec zfs create -o mountpoint=/export tank/export
+pfexec zfs create tank/export/pkg
+pfexec chown pkg5srv /export/pkg
+pfexec zfs create -o mountpoint=/build tank/build
+pfexec chown -R admin:staff /build
+
+echo "[II] zfs provisioning completed!"
