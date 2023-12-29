@@ -1,7 +1,11 @@
 #!/usr/bin/env bash -eux
 # Use the first disk not assigned to a zpool already to create the data pool.
-for DISK in $(cfgadm -al | awk -F\/ '/dsk/{ print $3 }' | awk '{ print $1 }'); do
-  if [[ -z $(zpool list -v | ggrep -E '^\s+${DISK}') ]]; then
+for DISK in $(diskinfo -H | awk '{ print $2 }')
+do
+  echo "Checking ${DISK}"
+  if [[ -z $(zpool list -H -v | egrep -e '^[[:blank:]]*'"${DISK}") ]]
+  then
+    echo "Found ${DISK}"
     echo "[II] Adding data zpool using whole disk ${DISK}"
     pfexec zpool create -f tank ${DISK}
     break
