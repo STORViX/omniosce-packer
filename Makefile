@@ -21,7 +21,7 @@
 # Separate expressions are necessary because labels cannot be delimited by
 # semicolon; see <http://stackoverflow.com/a/11799865/1968>
 
-BOX_NAME := omniosce-r151038
+BOX_NAME := omniosce-r151046
 
 .PHONY: all
 ## Build with Packer and run with Vagrant

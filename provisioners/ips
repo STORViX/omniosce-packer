@@ -9,7 +9,7 @@ set -eu
 #       of releases and their ports is supposed to reside in:
 #       git@bitbucket.org:/storvixdevelopment/dojo/content/posts/IPS.md
 #       Please remember to update there if modifying here.
-ALL_RELEASES='stable stable-qa edge edge-qa experimental'
+ALL_RELEASES='caipirinha caipirinha-qa experimental'
 
 if [ "${1}" = '--remove' ]; then
     MODE='remove'
@@ -25,7 +25,7 @@ root_for_release() {
     local directory
 
     case ${release} in
-        'stable' | 'edge')
+        'caipirinha' | 'edge')
             directory='/export/pkg'
             ;;
         'stable-qa' | 'edge-qa')
@@ -45,8 +45,8 @@ port_for_release() {
     local relnum
 
     case ${release} in
-        'stable')
-            relnum=30
+        'caipirinha')
+            relnum=46
             ;;
         'stable-qa')
             relnum=40
@@ -76,7 +76,7 @@ get_proxy_base() {
 
     [ "${type}" != "${name}" ] || type='r'
 
-    echo "https://update.storvix.eu/aire/${type}/${name}/"
+    echo "http://localhost/aire/${type}/${name}/"
 }
 
 remove_repo() {

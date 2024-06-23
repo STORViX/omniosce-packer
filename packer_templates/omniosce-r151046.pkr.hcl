@@ -1,10 +1,10 @@
-source "virtualbox-iso" "omniosce-r151038" {
+source "virtualbox-iso" "omniosce-r151046" {
     boot_command     = [
         "<enter><wait5>", // Select default keyboard layout
         "<enter><wait5>", // Enter find disk menu
         "<spacebar><enter><wait5>", // Select first disk as rpool
         "0<enter><wait5>",  // Accept rpool informations
-        "<bs><bs><bs><bs><bs><bs>r151038", // Change system hostname
+        "<bs><bs><bs><bs><bs><bs>r151046", // Change system hostname
         "<enter><wait><enter><wait1>", // Select default UTC timezone
         "<enter><wait1>", // Proceed with ZFS installation
         "<wait55>", // Wait for installation
@@ -16,7 +16,7 @@ source "virtualbox-iso" "omniosce-r151038" {
         "<down><spacebar><down><spacebar><enter><wait1><enter><wait1>", // Grant sudo without password to admin
         "3<enter><wait1>toor<down>toor<enter><wait1><enter><wait1>", // Setup root password
         "4<enter><wait1>", // Enable SSH server
-        "8<enter><wait1>", // Return to main menu
+        "9<enter><wait1>", // Return to main menu
         "3<enter>", // Reboot the machine
         "<wait60>" // Wait for reboot
     ]
@@ -24,8 +24,8 @@ source "virtualbox-iso" "omniosce-r151038" {
   disk_size        = 40960
   guest_os_type    = "OpenSolaris_64"
   headless         = "false"
-  iso_checksum     = "file:https://downloads.omnios.org/media/r151038/omnios-r151038an.iso.sha256"
-  iso_url          = "https://downloads.omnios.org/media/r151038/omnios-r151038an.iso"
+  iso_checksum     = "file:https://downloads.omnios.org/media/lts/omnios-r151046an.iso.sha256"
+  iso_url          = "https://downloads.omnios.org/media/lts/omnios-r151046an.iso"
   shutdown_command = "pfexec /usr/sbin/shutdown -g 0 -y -i 5"
   ssh_password     = "admin"
   ssh_username     = "admin"
@@ -42,7 +42,7 @@ source "virtualbox-iso" "omniosce-r151038" {
 }
 
 build {
-  sources = ["source.virtualbox-iso.omniosce-r151038"]
+  sources = ["source.virtualbox-iso.omniosce-r151046"]
 
   provisioner "shell" {
     scripts = [
@@ -53,6 +53,6 @@ build {
 
   post-processor "vagrant" {
     compression_level = 9
-    output            = "./builds/virtualbox/omniosce-r151038.box"
+    output            = "./builds/virtualbox/omniosce-r151046.box"
   }
 }

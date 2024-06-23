@@ -6,12 +6,12 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure('2') do |config|
-    config.vm.define 'omniosce-r151038', primary: true do |vm1|
+    config.vm.define 'omniosce-r151046', primary: true do |vm1|
         # The most common configuration options are documented and commented below.
         # For a complete reference, please see the online documentation at
         # https://docs.vagrantup.com.
 
-        config.vagrant.plugins = %w[vagrant-vbguest vagrant-reload]
+        config.vagrant.plugins = %w[vagrant-vbguest]
         if Vagrant.has_plugin? 'vagrant-vbguest'
             config.vbguest.no_install = true
             config.vbguest.auto_update = false
@@ -20,10 +20,10 @@ Vagrant.configure('2') do |config|
 
         # Every Vagrant development environment requires a box. You can search for
         # boxes at https://vagrantcloud.com/search.
-        config.vm.box = 'omniosce-r151038'
-        config.vm.box_url = 'builds/virtualbox/omniosce-r151038.box'
+        config.vm.box = 'omniosce-r151046'
+        config.vm.box_url = 'builds/virtualbox/omniosce-r151046.box'
         # Use a pre-built image from Vagrant Hub
-        #config.vm.box = 'storvix/omniosce-r151038'
+        #config.vm.box = 'storvix/omniosce-r151046'
         config.ssh.username = 'admin'
         config.ssh.password = 'admin'
         config.ssh.insert_key = false
@@ -38,8 +38,8 @@ Vagrant.configure('2') do |config|
         # within the machine from a port on the host machine. In the example below,
         # accessing "localhost:8080" will access port 80 on the guest machine.
         # NOTE: This will enable public access to the opened port
-        vm1.vm.network 'forwarded_port', guest: 22, host: 22038, id: 'ssh'
-        vm1.vm.network 'forwarded_port', guest: 80, host: 8038, id: 'web'
+        vm1.vm.network 'forwarded_port', guest: 22, host: 22046, id: 'ssh'
+        vm1.vm.network 'forwarded_port', guest: 80, host: 8046, id: 'web'
 
         # Create a forwarded port mapping which allows access to a specific port
         # within the machine from a port on the host machine and only allow access
@@ -48,7 +48,7 @@ Vagrant.configure('2') do |config|
 
         # Create a private network, which allows host-only access to the machine
         # using a specific IP.
-        vm1.vm.network 'private_network', ip: '192.168.56.30', virtualbox__intnet: true, auto_config: false
+        vm1.vm.network 'private_network', ip: '192.168.56.46', virtualbox__intnet: true, auto_config: false
         
         # Create a public network, which generally matched to bridged network.
         # Bridged networks make the machine appear as another physical device on
@@ -67,7 +67,7 @@ Vagrant.configure('2') do |config|
         #
         vm1.vm.provider 'virtualbox' do |vb|
             vb.check_guest_additions = false
-            vb.name = 'omniosce-r151038'
+            vb.name = 'omniosce-r151046'
             # Display the VirtualBox GUI when booting the machine
             vb.gui = false
             # Customize the amount of memory on the VM:
@@ -92,18 +92,18 @@ Vagrant.configure('2') do |config|
         #vm1.vm.provision 'shell', path: 'provisioners/shellprovision.sh', args: '0'
         vm1.vm.provision 'shell', path: './provisioners/shellprovisioner'
         vm1.vm.provision 'shell', path: './provisioners/pkg'
-        vm1.vm.provision :reload
+        #vm1.vm.provision :reload
         vm1.vm.provision 'shell', path: './provisioners/zfs'
         vm1.vm.provision 'shell', path: './provisioners/lipkgzone'
-        vm1.vm.provision 'shell', path: './provisioners/lxzone'
+        #vm1.vm.provision 'shell', path: './provisioners/lxzone'
         vm1.vm.provision 'shell', path: './provisioners/apache'
-        vm1.vm.provision 'shell', path: './provisioners/ips', args: 'edge'
+        vm1.vm.provision 'shell', path: './provisioners/ips', args: 'caipirinha'
         vm1.vm.post_up_message = <<-MESSAGE
           Now you can enable the shared folder.
           Be sure to have the ssh agent running and your key loaded.
           Run git clone git@bitbucket.org:storvixdevelopment/aire-build.git aire-build
           Run aire-build/setup /build
-          - edge: http://127.0.0.1:8038/aire/r/edge/en/index.shtml
+          - edge: http://127.0.0.1:8046/aire/r/caipirinha/en/index.shtml
         MESSAGE
     end
 end

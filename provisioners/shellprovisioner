@@ -15,7 +15,7 @@
 
     pfexec echo "export PATH=$PATH:/opt/ooce/bin/" >> /home/admin/.profile
     pfexec echo "export OPENSSL_DIR=/usr/ssl" >> /home/admin/.profile
-    pfexec echo "r151038" > /etc/nodename
+    pfexec echo "r151046" > /etc/nodename
     pfexec echo "domain vbox.lan" > /etc/resolv.conf
     pfexec echo "nameserver 208.67.220.220" >> /etc/resolv.conf
     pfexec cp /etc/nsswitch.dns /etc/nsswitch.conf
