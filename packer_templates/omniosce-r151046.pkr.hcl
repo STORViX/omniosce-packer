@@ -24,8 +24,8 @@ source "virtualbox-iso" "omniosce-r151046" {
   disk_size        = 40960
   guest_os_type    = "OpenSolaris_64"
   headless         = "false"
-  iso_checksum     = "file:https://downloads.omnios.org/media/lts/omnios-r151046an.iso.sha256"
-  iso_url          = "https://downloads.omnios.org/media/lts/omnios-r151046an.iso"
+  iso_checksum     = "file:https://downloads.omnios.org/media/r151046/omnios-r151046an.iso.sha256"
+  iso_url          = "https://downloads.omnios.org/media/r151046/omnios-r151046an.iso"
   shutdown_command = "pfexec /usr/sbin/shutdown -g 0 -y -i 5"
   ssh_password     = "admin"
   ssh_username     = "admin"
